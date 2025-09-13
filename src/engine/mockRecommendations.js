@@ -1,23 +1,23 @@
 // src/engine/mockRecommendations.js
 export const recommendations = [
   // 🌴 Relaxed
-  { id: "relaxed-1", title: "Diani Beach, Kenya", tag: "Beach", price: 1200, image: "/Images/Diani.jpg", mood: "relaxed" },
-  { id: "relaxed-2", title: "Manda Bay Retreat Lamu", tag: "Bay", price: 1000, image: "/Images/Lamu Bay.webp", mood: "relaxed" },
-  { id: "relaxed-3", title: "Watamu Marine Park", tag: "Marine", price: 1100, image: "/Images/Watamu.jpeg", mood: "relaxed" },
-  { id: "relaxed-4", title: "Diamond Malindi Resort", tag: "Resort", price: 950, image: "/Images/Diamond.jpg", mood: "relaxed" },
-  { id: "relaxed-5", title: "Wild Waters Mombasa", tag: "Coast", price: 950, image: "/Images/Wildwaters.webp", mood: "relaxed" },
-  { id: "relaxed-6", title: "Nyali beach", tag: "Beach", price: 950, image: "/Images/Nyali.jpg", mood: "relaxed" },
+  { id: "relaxed-1", title: "Diani Beach, Kenya", tag: "Beach", price: 1200, image: "/Images/Diani.jpg", mood: "relaxed",coords: { lat: -4.278882289049631, lng: 39.59459729374501, }, },
+  { id: "relaxed-2", title: "Manda Bay Retreat Lamu", tag: "Bay", price: 1000, image: "/Images/Lamu Bay.webp", mood: "relaxed",coords: { lat:-2.222791478703562,  lng: 40.967493194583135, }, },
+  { id: "relaxed-3", title: "Watamu Marine Park", tag: "Marine", price: 1100, image: "/Images/Watamu.jpeg", mood: "relaxed",coords: { lat: -3.3661659794097245,  lng: 40.01700674179441, }, },
+  { id: "relaxed-4", title: "Diamond Malindi Resort", tag: "Resort", price: 17000, image: "/Images/Diamond.jpg", mood: "relaxed",coords: { lat:-3.2392643148796,  lng: 40.12497253691599 , }, },
+  { id: "relaxed-5", title: "Wild Waters Mombasa", tag: "Coast", price: 950, image: "/Images/Wildwaters.webp", mood: "relaxed",coords: { lat: -4.0398061328190975,  lng: 39.704099625279866, }, },
+  { id: "relaxed-6", title: "Nyali beach", tag: "Beach", price: 950, image: "/Images/Nyali.jpg", mood: "relaxed",coords: { lat:-4.0451376520642395,  lng:  39.70874500258153 , }, },
 
   // 🏔 Adventurous
-  { id: "adventurous-1", title: "Mount Kenya Hike", tag: "Hiking", price: 1500, image: "/Images/Mt.Kenya.jpg", mood: "adventurous" },
-  { id: "adventurous-2", title: "Nairobi National Park Safari", tag: "Safari", price: 1800, image: "/Images/Nairobi.webp", mood: "adventurous" },
-  { id: "adventurous-3", title: "Tsavo East National Park", tag: "Wildlife", price: 2000, image: "/Images/Tsavo.jpg", mood: "adventurous" },
-  { id: "adventurous-4", title: "Tsavo West National Park", tag: "Adventure", price: 2200, image: "/Images/TsavoW.jpg", mood: "adventurous" },
-  { id: "adventurous-5", title: "Lake Turkana Expedition", tag: "Adventure", price: 2200, image: "/Images/Turkana.webp", mood: "adventurous" },
-  { id: "adventurous-6", title: "Samburu Game Reserve", tag: "Safari", price: 1700, image: "/Images/Samburu.jpg", mood: "adventurous" },
-  { id: "adventurous-7", title: "Amboseli Natonal park", tag: "Adventure", price: 2200, image: "/Images/Amboseli.jpeg", mood: "adventurous" },
-  { id: "adventurous-8", title: "Maasai Mara National Park", tag: "Adventure", price: 2200, image: "/Images/Maasai Mara.jpg", mood: "adventurous" },
-  { id: "adventurous-9", title: "Buffalo Springs NR ", tag: "Adventure", price: 2200, image: "/Images/Buffalo.jpeg", mood: "adventurous" },
+  { id: "adventurous-1", title: "Mount Kenya Hike", tag: "Hiking", price: 1500, image: "/Images/Mt.Kenya.jpg", mood: "adventurous",coords: { lat:-1.2563806565234152, lng:36.84319440717519,    }, },
+  { id: "adventurous-2", title: "Nairobi National Park Safari", tag: "Safari", price: 1800, image: "/Images/Nairobi.webp", mood: "adventurous" ,coords: { lat:-1.3774386349945233, lng:36.86328684787669,  },},
+  { id: "adventurous-3", title: "Tsavo East National Park", tag: "Wildlife", price: 2000, image: "/Images/Tsavo.jpg", mood: "adventurous" ,coords: { lat:-2.7844159737518988,   lng:38.817612796383685 ,  },},
+  { id: "adventurous-4", title: "Tsavo West National Park", tag: "Adventure", price: 2200, image: "/Images/TsavoW.jpg", mood: "adventurous",coords: { lat: -3.3563686532150023,  lng: 37.953132377427025, }, },
+  { id: "adventurous-5", title: "Lake Turkana Expedition", tag: "Adventure", price: 2200, image: "/Images/Turkana.webp", mood: "adventurous",coords: { lat: 3.246560329088316,  lng:  36.028734263900546 , }, },
+  { id: "adventurous-6", title: "Samburu Game Reserve", tag: "Safari", price: 1700, image: "/Images/Samburu.jpg", mood: "adventurous",coords: { lat:0.6112594792160988,  lng: 37.5374627792358,  }, },
+  { id: "adventurous-7", title: "Amboseli Natonal park", tag: "Adventure", price: 2200, image: "/Images/Amboseli.jpeg", mood: "adventurous",coords: { lat:-2.651298542409104,   lng: 37.26139268045343,  }, },
+  { id: "adventurous-8", title: "Maasai Mara National Reserve", tag: "Adventure", price: 2200, image: "/Images/Maasai Mara.jpg", mood: "adventurous" ,coords: { lat:-1.4820894975178847, lng:  35.13009688294017, },},
+  { id: "adventurous-9", title: "Buffalo Springs NR ", tag: "Adventure", price: 2200, image: "/Images/Buffalo.jpeg", mood: "adventurous",coords: { lat:0.5256978955428666,  lng:37.591439623415305 ,   }, },
 
   // 💖 Romantic
   { id: "romantic-1", title: "Southern Palms Beach Resort", tag: "Resort", price: 304, image: "/Images/Southern.jpg", mood: "romantic" },

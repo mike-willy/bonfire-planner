@@ -2,6 +2,8 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { recommendations } from "../engine/mockRecommendations";
+import MapPanel from "../components/MapPanel";
+
 
 export default function Recommendations() {
   const { mood, selectedDestinations, toggleSelect } = useContext(AppContext);
@@ -120,9 +122,8 @@ export default function Recommendations() {
         {/* Right Panel */}
         <aside className="bg-white rounded-2xl p-6 shadow flex flex-col gap-4">
           <div className="text-sm text-gray-600">Interactive Map</div>
-          <div className="h-60 rounded-lg bg-gray-100 flex items-center justify-center">
-            Map placeholder
-          </div>
+          <MapPanel destinations={selectedDestinations} />
+
 
           <div className="mt-4">
             <h4 className="font-semibold text-sm">Trip Preview</h4>
