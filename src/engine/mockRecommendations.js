@@ -2,11 +2,11 @@
 export const recommendations = [
   // 🌴 Relaxed
   { id: "relaxed-1", title: "Diani Beach, Kenya", tag: "Beach", price: 1200, image: "/Images/Diani.jpg", mood: "relaxed" },
-  { id: "relaxed-2", title: "Manda Bay Retreat Lamu", tag: "Beach", price: 1000, image: "/Images/Lamu Bay.webp", mood: "relaxed" },
-  { id: "relaxed-3", title: "Watamu Marine Park", tag: "Beach", price: 1100, image: "/Images/Watamu.jpeg", mood: "relaxed" },
-  { id: "relaxed-4", title: "Diamond Malindi Resort", tag: "Coast", price: 950, image: "/Images/Diamond.jpg", mood: "relaxed" },
+  { id: "relaxed-2", title: "Manda Bay Retreat Lamu", tag: "Bay", price: 1000, image: "/Images/Lamu Bay.webp", mood: "relaxed" },
+  { id: "relaxed-3", title: "Watamu Marine Park", tag: "Marine", price: 1100, image: "/Images/Watamu.jpeg", mood: "relaxed" },
+  { id: "relaxed-4", title: "Diamond Malindi Resort", tag: "Resort", price: 950, image: "/Images/Diamond.jpg", mood: "relaxed" },
   { id: "relaxed-5", title: "Wild Waters Mombasa", tag: "Coast", price: 950, image: "/Images/Wildwaters.webp", mood: "relaxed" },
-  { id: "relaxed-6", title: "Nyali beach", tag: "Coast", price: 950, image: "/Images/Nyali.jpg", mood: "relaxed" },
+  { id: "relaxed-6", title: "Nyali beach", tag: "Beach", price: 950, image: "/Images/Nyali.jpg", mood: "relaxed" },
 
   // 🏔 Adventurous
   { id: "adventurous-1", title: "Mount Kenya Hike", tag: "Hiking", price: 1500, image: "/Images/Mt.Kenya.jpg", mood: "adventurous" },
