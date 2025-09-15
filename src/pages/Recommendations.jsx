@@ -1,28 +1,44 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
-import { recommendations } from "../engine/mockRecommendations";
 import MapPanel from "../components/MapPanel";
 
-
 export default function Recommendations() {
-  const { mood, selectedDestinations, toggleSelect } = useContext(AppContext);
+  const {
+    mood,
+    selectedDestinations,
+    toggleSelect,
+    recommendations,
+    fetchRecommendations,
+    loading,
+  } = useContext(AppContext);
 
-  const [budget, setBudget] = useState(""); 
+  const [budget, setBudget] = useState("");
   const navigate = useNavigate();
 
+  // 🚨 Redirect if mood is not chosen
   if (!mood) {
     navigate("/quiz");
     return null;
   }
 
-  // ✅ Flexible budget filter with ±200 tolerance
+  // ✅ Fetch recommendations whenever mood changes
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    fetchRecommendations(mood);
+  }, [mood, fetchRecommendations]);
+
+  // Flexible budget filter with ±200 tolerance
   const tolerance = 200;
   const list = recommendations.filter((r) => {
-    if (r.mood !== mood) return false;
     if (!budget) return true;
-    const minBudget = Number(budget) - tolerance;
-    const maxBudget = Number(budget) + tolerance;
+
+    const userBudget = parseInt(budget, 10); // ✅ convert to number
+
+    if (isNaN(userBudget)) return true; // ignore invalid input
+
+    const minBudget = userBudget - tolerance;
+    const maxBudget = userBudget + tolerance;
     return r.price >= minBudget && r.price <= maxBudget;
   });
 
@@ -33,7 +49,6 @@ export default function Recommendations() {
   return (
     <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-indigo-50 via-white to-orange-50">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl w-full p-6">
-        
         {/* Left Panel */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -69,8 +84,13 @@ export default function Recommendations() {
             </div>
           </div>
 
-          {/* ✅ Budget Info Message */}
-          {budget && (
+          {/* Loading or Budget Info */}
+          {loading && (
+            <p className="mt-4 text-sm text-indigo-600">
+              Loading recommendations...
+            </p>
+          )}
+          {budget && !loading && (
             <p className="mt-4 text-sm text-indigo-600 font-medium">
               Showing trips within ${budget} ± ${tolerance}
             </p>
@@ -78,7 +98,7 @@ export default function Recommendations() {
 
           {/* Destination Cards */}
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {list.length > 0 ? (
+            {!loading && list.length > 0 ? (
               list.map((r) => (
                 <div
                   key={r.id}
@@ -112,9 +132,11 @@ export default function Recommendations() {
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-sm mt-4">
-                No destinations found within ±${tolerance} of your budget.
-              </p>
+              !loading && (
+                <p className="text-gray-500 text-sm mt-4">
+                  No destinations found within ±${tolerance} of your budget.
+                </p>
+              )
             )}
           </div>
         </div>
@@ -123,7 +145,6 @@ export default function Recommendations() {
         <aside className="bg-white rounded-2xl p-6 shadow flex flex-col gap-4">
           <div className="text-sm text-gray-600">Interactive Map</div>
           <MapPanel destinations={selectedDestinations} />
-
 
           <div className="mt-4">
             <h4 className="font-semibold text-sm">Trip Preview</h4>
