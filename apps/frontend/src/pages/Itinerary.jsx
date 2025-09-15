@@ -1,15 +1,36 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
-import { rules } from "../engine/rules";
 
 export default function Itinerary() {
   const { selectedDestinations, clearSelection, mood, budget } =
     useContext(AppContext);
 
+  const [rule, setRule] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Fetch mood rule from backend
+  useEffect(() => {
+    async function fetchRule() {
+      if (!mood) return;
+      try {
+        setLoading(true);
+        const res = await fetch(`http://127.0.0.1:8000/rules/${mood}`);
+        if (!res.ok) throw new Error("Failed to fetch rule");
+        const data = await res.json();
+        setRule(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRule();
+  }, [mood]);
+
   const total = selectedDestinations.reduce((sum, d) => sum + d.price, 0);
-  const rule = rules.find((r) => r.mood === mood);
 
   function budgetStatus(price) {
+    if (!rule) return "within";
     if (price <= budget) return "within";
     if (price <= rule.conditions.budget.max) return "above";
     return "over";
@@ -40,7 +61,7 @@ export default function Itinerary() {
                   <div className="font-medium">{d.title}</div>
                   <div className="text-xs text-gray-500">{d.tag}</div>
                 </div>
-                <div className="font-semibold">${d.price}</div>
+                <div className="font-semibold">Ksh{d.price}</div>
               </div>
             ))}
 
@@ -56,7 +77,7 @@ export default function Itinerary() {
                     : "bg-red-100 text-red-700"
                 }`}
               >
-                ${total}
+                Ksh{total}
               </div>
             </div>
 
@@ -64,7 +85,7 @@ export default function Itinerary() {
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
               <button
                 onClick={clearSelection}
-                className="px-4 py-2 rounded-lg bg-gray-100 text-sm"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-sm"
               >
                 Clear All
               </button>
@@ -73,6 +94,10 @@ export default function Itinerary() {
               </button>
             </div>
           </div>
+        )}
+
+        {loading && (
+          <div className="mt-4 text-sm text-gray-500">Loading budget rules...</div>
         )}
       </div>
     </section>
