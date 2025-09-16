@@ -32,21 +32,29 @@ const [selectedDestinations, setSelectedDestinations] = useState([]);
     }
   }, []);
   
-   // Fetch recommendations
-  const fetchRecommendations = useCallback(async (mood) => {
+   // ✅ Fetch recommendations from backend
+  const fetchRecommendations = useCallback(async (selectedMood) => {
+    if (!selectedMood) return;
     setLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`/api/recommendations?mood=${mood}`);
+      const response = await fetch("http://127.0.0.1:8000/recommendations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mood: selectedMood }),
+      });
       if (!response.ok) throw new Error("Failed to fetch recommendations");
       const data = await response.json();
-      setRecommendations(Array.isArray(data) ? data : []);
+      setRecommendations(data.recommendations || []);
     } catch (err) {
       console.error("Error fetching recommendations:", err);
+      setError("Could not load recommendations. Please try again.");
       setRecommendations([]);
     } finally {
       setLoading(false);
     }
   }, []);
+
 
   // Toggle selection
   const toggleSelect = (destination) => {

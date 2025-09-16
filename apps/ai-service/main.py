@@ -108,3 +108,4 @@ def get_recommendations(data: MoodRequest):
     mood = data.mood.lower()
     recs = [item for item in recommendations if item["mood"].lower() == mood]
     return {"recommendations": recs}
+

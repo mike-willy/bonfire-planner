@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import MapPanel from "../components/MapPanel";
+import { videoData } from "../data/videoData"; // ✅ Import video mapping
 
 export default function Recommendations() {
   const {
@@ -14,28 +15,25 @@ export default function Recommendations() {
   } = useContext(AppContext);
 
   const [budget, setBudget] = useState("");
+  const [modalVideo, setModalVideo] = useState(null); // ✅ store current video
   const navigate = useNavigate();
 
-  // 🚨 Redirect if mood is not chosen
   if (!mood) {
     navigate("/quiz");
     return null;
   }
 
-  // ✅ Fetch recommendations whenever mood changes
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     fetchRecommendations(mood);
   }, [mood, fetchRecommendations]);
 
-  // Flexible budget filter with ±200 tolerance
   const tolerance = 200;
   const list = recommendations.filter((r) => {
     if (!budget) return true;
 
-    const userBudget = parseInt(budget, 10); // ✅ convert to number
-
-    if (isNaN(userBudget)) return true; // ignore invalid input
+    const userBudget = parseInt(budget, 10);
+    if (isNaN(userBudget)) return true;
 
     const minBudget = userBudget - tolerance;
     const maxBudget = userBudget + tolerance;
@@ -113,7 +111,19 @@ export default function Recommendations() {
                     <div>
                       <div className="text-sm text-gray-500">{r.tag}</div>
                       <div className="font-semibold">{r.title}</div>
+                      {/* ✅ Video Button */}
+                      {videoData[r.title] && (
+                        <div className="mt-3">
+                          <button
+                            onClick={() => setModalVideo(videoData[r.title])}
+                            className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded hover:bg-red-600"
+                          >
+                            View Video
+                          </button>
+                        </div>
+                      )}
                     </div>
+
                     <div className="flex items-center justify-end mt-3">
                       <button
                         onClick={() => toggleSelect(r)}
@@ -142,36 +152,60 @@ export default function Recommendations() {
         </div>
 
         {/* Right Panel */}
-        <aside className="bg-white rounded-2xl p-6 shadow flex flex-col gap-4">
-          <div className="text-sm text-gray-600">Interactive Map</div>
-          <MapPanel destinations={selectedDestinations} />
+        {!modalVideo && (
+  <aside className="bg-white rounded-2xl p-6 shadow flex flex-col gap-4">
+    <div className="text-sm text-gray-600">Interactive Map</div>
+    <MapPanel destinations={selectedDestinations} />
 
-          <div className="mt-4">
-            <h4 className="font-semibold text-sm">Trip Preview</h4>
-            <div className="text-xs text-gray-500">
-              Selected: {selectedDestinations.length} items
-            </div>
-            <div className="mt-2 grid gap-2">
-              {selectedDestinations.map((s) => (
-                <div
-                  key={s.id}
-                  className="text-sm flex items-center justify-between"
-                >
-                  <div>{s.title}</div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4">
-              <Link
-                to="/itinerary"
-                className="w-full block text-center py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white font-medium shadow hover:from-indigo-600 hover:to-emerald-500"
-              >
-                Build Itinerary
-              </Link>
-            </div>
-          </div>
-        </aside>
+    <div className="mt-4">
+      <h4 className="font-semibold text-sm">Trip Preview</h4>
+      <div className="text-xs text-gray-500">
+        Selected: {selectedDestinations.length} items
       </div>
+      <div className="mt-2 grid gap-2">
+        {selectedDestinations.map((s) => (
+          <div
+            key={s.id}
+            className="text-sm flex items-center justify-between"
+          >
+            <div>{s.title}</div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4">
+        <Link
+          to="/itinerary"
+          className="w-full block text-center py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white font-medium shadow hover:from-indigo-600 hover:to-emerald-500"
+        >
+          Build Itinerary
+        </Link>
+      </div>
+    </div>
+  </aside>
+)}
+      </div>
+
+      {/* ✅ Video Modal */}
+      {modalVideo && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+          <div className="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-1/2 p-4 relative">
+            <button
+              onClick={() => setModalVideo(null)}
+              className="absolute top-2 right-2 text-gray-700 hover:text-red-500 text-xl"
+            >
+              ✕
+            </button>
+            <iframe
+              className="w-full h-96 rounded"
+              src={modalVideo}
+              title="Destination Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }
