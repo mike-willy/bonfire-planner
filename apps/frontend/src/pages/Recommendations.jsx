@@ -191,7 +191,7 @@ export default function Recommendations() {
           <div className="bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-1/2 p-4 relative">
             <button
               onClick={() => setModalVideo(null)}
-              className="absolute top-2 right-2 text-gray-700 hover:text-red-500 text-xl"
+              className="absolute top-2 right-2 text-blue-700 hover:text-red-500 text-xl"
             >
               ✕
             </button>

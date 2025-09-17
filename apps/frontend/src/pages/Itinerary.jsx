@@ -1,12 +1,19 @@
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Itinerary() {
-  const { selectedDestinations, clearSelection, mood, budget } =
-    useContext(AppContext);
+  const { 
+    selectedDestinations, 
+    clearAllDestinations, 
+    removeDestination, 
+    mood, 
+    budget 
+  } = useContext(AppContext);
 
   const [rule, setRule] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // ✅ Fetch mood rule from backend
   useEffect(() => {
@@ -61,7 +68,16 @@ export default function Itinerary() {
                   <div className="font-medium">{d.title}</div>
                   <div className="text-xs text-gray-500">{d.tag}</div>
                 </div>
-                <div className="font-semibold">Ksh{d.price}</div>
+                <div className="flex items-center gap-4">
+                  <div className="font-semibold">Ksh{d.price}</div>
+                  {/* ✅ Remove one destination */}
+                  <button
+                    onClick={() => removeDestination(d.id)}
+                    className="px-3 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             ))}
 
@@ -84,12 +100,15 @@ export default function Itinerary() {
             {/* Actions */}
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
               <button
-                onClick={clearSelection}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-sm"
+                onClick={clearAllDestinations}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium"
               >
                 Clear All
               </button>
-              <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium">
+              <button
+                onClick={() => navigate("/checkout")}
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium"
+              >
                 Proceed to Book
               </button>
             </div>
@@ -97,7 +116,9 @@ export default function Itinerary() {
         )}
 
         {loading && (
-          <div className="mt-4 text-sm text-gray-500">Loading budget rules...</div>
+          <div className="mt-4 text-sm text-gray-500">
+            Loading budget rules...
+          </div>
         )}
       </div>
     </section>

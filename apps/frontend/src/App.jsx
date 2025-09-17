@@ -12,6 +12,8 @@ import Itinerary from "./pages/Itinerary";
 import Community from "./pages/Community";
 import Rewards from "./pages/Rewards";
 import Profile from "./pages/Profile";
+import Checkout from "./pages/Checkout";
+
 
 export default function App() {
   const location = useLocation();
@@ -32,6 +34,7 @@ export default function App() {
               <Route path="/community" element={<PageTransition><Community /></PageTransition>} />
               <Route path="/rewards" element={<PageTransition><Rewards /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
+              <Route path="/checkout" element={<Checkout />} />
             </Routes>
           </AnimatePresence>
         </main>

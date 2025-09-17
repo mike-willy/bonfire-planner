@@ -5,22 +5,20 @@ export const AppContext = createContext();
 
 export function AppProvider({ children }) {
   const [mood, setMood] = useState(null);
-  const [availableMoods, setAvailableMoods] = useState([]); // ✅ always array
+  const [availableMoods, setAvailableMoods] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
-const [selectedDestinations, setSelectedDestinations] = useState([]);
+  const [selectedDestinations, setSelectedDestinations] = useState([]);
 
-  // ✅ Fetch moods from backend
+  // ✅ Fetch moods
   const fetchMoods = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8000/moods"); // 👈 update port if needed
+      const response = await fetch("http://localhost:8000/moods");
       if (!response.ok) throw new Error("Failed to fetch moods");
       const data = await response.json();
-
-      // ✅ backend sends { moods: [...] }
       const moods = data.moods || [];
       setAvailableMoods(Array.isArray(moods) ? moods : []);
     } catch (err) {
@@ -31,8 +29,8 @@ const [selectedDestinations, setSelectedDestinations] = useState([]);
       setLoading(false);
     }
   }, []);
-  
-   // ✅ Fetch recommendations from backend
+
+  // ✅ Fetch recommendations
   const fetchRecommendations = useCallback(async (selectedMood) => {
     if (!selectedMood) return;
     setLoading(true);
@@ -55,13 +53,24 @@ const [selectedDestinations, setSelectedDestinations] = useState([]);
     }
   }, []);
 
-
-  // Toggle selection
+  // ✅ Select / deselect
   const toggleSelect = (destination) => {
     setSelectedDestinations((prev) =>
       prev.find((d) => d.id === destination.id)
         ? prev.filter((d) => d.id !== destination.id)
         : [...prev, destination]
+    );
+  };
+
+  // ✅ Clear all
+  const clearAllDestinations = () => {
+    setSelectedDestinations([]);
+  };
+
+  // ✅ Remove one
+  const removeDestination = (id) => {
+    setSelectedDestinations((prev) =>
+      prev.filter((d) => d.id !== id)
     );
   };
 
@@ -78,6 +87,8 @@ const [selectedDestinations, setSelectedDestinations] = useState([]);
         fetchRecommendations,
         selectedDestinations,
         toggleSelect,
+        clearAllDestinations, // ✅ added
+        removeDestination,    // ✅ added
       }}
     >
       {children}
