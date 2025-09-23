@@ -13,6 +13,7 @@ import Community from "./pages/Community";
 import Rewards from "./pages/Rewards";
 import Profile from "./pages/Profile";
 import Checkout from "./pages/Checkout";
+import Auth from "./pages/Auth";
 
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
               <Route path="/community" element={<PageTransition><Community /></PageTransition>} />
               <Route path="/rewards" element={<PageTransition><Rewards /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
+              <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
               <Route path="/checkout" element={<Checkout />} />
             </Routes>
           </AnimatePresence>

@@ -1,13 +1,49 @@
 // src/pages/Checkout.jsx
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
+// ✅ Firebase
+import { db, auth } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 export default function Checkout() {
-  const { selectedDestinations } = useContext(AppContext);
+  const { selectedDestinations, mood, budget } = useContext(AppContext);
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(false);
+
   const total = selectedDestinations.reduce((sum, d) => sum + d.price, 0);
+
+  // ✅ Confirm booking
+  async function handleConfirm() {
+    if (!auth.currentUser) {
+      alert("⚠️ Please sign in before confirming booking.");
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await addDoc(collection(db, "itineraries"), {
+        userId: auth.currentUser.uid,
+        mood: mood || null,
+        budget: budget || null,
+        destinations: selectedDestinations,
+        total,
+        createdAt: serverTimestamp(),
+      });
+
+      alert("✅ Booking confirmed! 🚀");
+      navigate("/profile"); // 👈 after confirm, go to profile or history page
+    } catch (err) {
+      console.error("Error saving booking:", err);
+      alert("❌ Could not save booking. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-orange-50 via-white to-indigo-50">
@@ -48,10 +84,11 @@ export default function Checkout() {
             Back
           </button>
           <button
-            onClick={() => alert("Booking confirmed! 🚀")}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium"
+            onClick={handleConfirm}
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium disabled:opacity-50"
           >
-            Confirm Booking
+            {loading ? "Saving..." : "Confirm Booking"}
           </button>
         </div>
       </div>

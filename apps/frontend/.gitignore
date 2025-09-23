@@ -47,3 +47,5 @@ env/
 # OS files
 # --------------------
 Thumbs.db
+
+firebase.js

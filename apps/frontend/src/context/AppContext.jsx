@@ -10,6 +10,8 @@ export function AppProvider({ children }) {
   const [error, setError] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [selectedDestinations, setSelectedDestinations] = useState([]);
+  const [pendingItinerary, setPendingItinerary] = useState(null);
+
 
   // ✅ Fetch moods
   const fetchMoods = useCallback(async () => {
@@ -89,6 +91,8 @@ export function AppProvider({ children }) {
         toggleSelect,
         clearAllDestinations, // ✅ added
         removeDestination,    // ✅ added
+        pendingItinerary,      // 👈 add this
+        setPendingItinerary,
       }}
     >
       {children}

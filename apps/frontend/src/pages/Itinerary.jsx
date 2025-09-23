@@ -1,6 +1,10 @@
+// src/pages/Itinerary.jsx
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
+
+// ✅ Firebase Auth
+import { auth } from "../firebase";
 
 export default function Itinerary() {
   const { 
@@ -8,14 +12,17 @@ export default function Itinerary() {
     clearAllDestinations, 
     removeDestination, 
     mood, 
-    budget 
+    budget,
+    setPendingItinerary   // 👈 make sure this is in AppContext
   } = useContext(AppContext);
 
   const [rule, setRule] = useState(null);
   const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line no-unused-vars
+  const [travelDate, setTravelDate] = useState(null); // optional if you want to add date
   const navigate = useNavigate();
 
-  // ✅ Fetch mood rule from backend
+  // ✅ Fetch mood rule (can be removed if backend isn’t ready)
   useEffect(() => {
     async function fetchRule() {
       if (!mood) return;
@@ -42,8 +49,33 @@ export default function Itinerary() {
     if (price <= rule.conditions.budget.max) return "above";
     return "over";
   }
-
   const status = budgetStatus(total);
+
+  // ✅ Handle Proceed to Book
+  function handleProceed() {
+    if (selectedDestinations.length === 0) {
+      alert("⚠️ Please select at least one destination!");
+      return;
+    }
+
+    if (!auth.currentUser) {
+      // Save itinerary temporarily so it’s available after login
+      setPendingItinerary({
+        mood,
+        budget,
+        destinations: selectedDestinations,
+        total,
+        travelDate: travelDate ? travelDate.toISOString().split("T")[0] : null,
+      });
+
+      alert("⚠️ Please sign up or log in first to continue.");
+      navigate("/auth");
+      return;
+    }
+
+    // If already logged in → go to checkout
+    navigate("/checkout");
+  }
 
   return (
     <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-indigo-50 via-white to-orange-50">
@@ -70,7 +102,6 @@ export default function Itinerary() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="font-semibold">Ksh{d.price}</div>
-                  {/* ✅ Remove one destination */}
                   <button
                     onClick={() => removeDestination(d.id)}
                     className="px-3 py-1 text-xs bg-red-100 text-red-600 rounded hover:bg-red-200"
@@ -101,12 +132,12 @@ export default function Itinerary() {
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
               <button
                 onClick={clearAllDestinations}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-gray-400 to-gray-500 text-white text-sm font-medium"
               >
                 Clear All
               </button>
               <button
-                onClick={() => navigate("/checkout")}
+                onClick={handleProceed}
                 className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-emerald-400 text-white text-sm font-medium"
               >
                 Proceed to Book

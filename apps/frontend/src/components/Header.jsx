@@ -22,6 +22,9 @@ export default function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6">
+          <Link to="/auth" className="hover:text-indigo-500">
+            Sign Up
+          </Link>
           <Link to="/community" className="hover:text-indigo-500">
             Community
           </Link>
