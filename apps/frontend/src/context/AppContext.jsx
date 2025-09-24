@@ -1,17 +1,59 @@
-import { createContext, useState, useCallback } from "react";
+// src/context/AppContext.jsx
+import { createContext, useState, useCallback, useEffect } from "react";
+import { auth, db } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
 
 export function AppProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [trips, setTrips] = useState(() => {
+    // ✅ Load from cache on startup
+    const cached = localStorage.getItem("userTrips");
+    return cached ? JSON.parse(cached) : [];
+  });
   const [mood, setMood] = useState(null);
-  const [availableMoods, setAvailableMoods] = useState([]); 
+  const [availableMoods, setAvailableMoods] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [selectedDestinations, setSelectedDestinations] = useState([]);
   const [pendingItinerary, setPendingItinerary] = useState(null);
 
+  // ✅ Track Firebase Auth state + trips
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser || null);
+
+      if (currentUser) {
+        const q = query(
+          collection(db, "itineraries"),
+          where("userId", "==", currentUser.uid),
+          orderBy("createdAt", "desc")
+        );
+
+        const unsubTrips = onSnapshot(q, (snapshot) => {
+          const tripsData = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setTrips(tripsData);
+
+          // ✅ Save to cache
+          localStorage.setItem("userTrips", JSON.stringify(tripsData));
+        });
+
+        return () => unsubTrips();
+      } else {
+        setTrips([]);
+        localStorage.removeItem("userTrips");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // ✅ Fetch moods
   const fetchMoods = useCallback(async () => {
@@ -64,21 +106,15 @@ export function AppProvider({ children }) {
     );
   };
 
-  // ✅ Clear all
-  const clearAllDestinations = () => {
-    setSelectedDestinations([]);
-  };
-
-  // ✅ Remove one
-  const removeDestination = (id) => {
-    setSelectedDestinations((prev) =>
-      prev.filter((d) => d.id !== id)
-    );
-  };
+  const clearAllDestinations = () => setSelectedDestinations([]);
+  const removeDestination = (id) =>
+    setSelectedDestinations((prev) => prev.filter((d) => d.id !== id));
 
   return (
     <AppContext.Provider
       value={{
+        user,
+        trips,                // ✅ trips always available
         mood,
         setMood,
         availableMoods,
@@ -89,9 +125,9 @@ export function AppProvider({ children }) {
         fetchRecommendations,
         selectedDestinations,
         toggleSelect,
-        clearAllDestinations, // ✅ added
-        removeDestination,    // ✅ added
-        pendingItinerary,      // 👈 add this
+        clearAllDestinations,
+        removeDestination,
+        pendingItinerary,
         setPendingItinerary,
       }}
     >

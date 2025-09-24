@@ -3,10 +3,19 @@ import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 export default function Checkout() {
-  const { selectedDestinations, mood, budget, pendingItinerary } = useContext(AppContext);
+  const { selectedDestinations, mood, budget, pendingItinerary } =
+    useContext(AppContext);
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -24,17 +33,61 @@ export default function Checkout() {
     try {
       setLoading(true);
 
+      // --- Save itinerary ---
       await addDoc(collection(db, "itineraries"), {
         userId: auth.currentUser.uid,
         mood: mood || null,
         budget: budget || null,
         destinations: selectedDestinations,
         total,
-        travelDate: pendingItinerary?.travelDate || null, // 👈 Save date
+        travelDate: pendingItinerary?.travelDate || null,
         createdAt: serverTimestamp(),
       });
 
-      alert("✅ Booking confirmed! 🚀");
+      // --- Update user points & badges ---
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      let userData = {};
+      if (userSnap.exists()) {
+        userData = userSnap.data();
+      } else {
+        // if first time, create user record
+        await setDoc(userRef, {
+          displayName: auth.currentUser.displayName || "Traveler",
+          email: auth.currentUser.email,
+          points: 0,
+          badges: [],
+        });
+        userData = { points: 0, badges: [] };
+      }
+
+      // Add points
+      let newPoints = (userData.points || 0) + 100;
+
+      // Badge rules
+      const badges = new Set(userData.badges || []);
+      if (selectedDestinations.length >= 3) {
+        badges.add("Explorer");
+      }
+      if (total <= 5000) {
+        badges.add("Budget Master");
+      }
+      if (
+        selectedDestinations.some((d) =>
+          d.tag?.toLowerCase().includes("culture")
+        )
+      ) {
+        badges.add("Cultural Seeker");
+      }
+
+      // Update Firestore
+      await updateDoc(userRef, {
+        points: newPoints,
+        badges: Array.from(badges),
+      });
+
+      alert("✅ Booking confirmed! 🚀 Points & rewards updated.");
       navigate("/profile");
     } catch (err) {
       console.error("Error saving booking:", err);
@@ -48,12 +101,17 @@ export default function Checkout() {
     <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-orange-50 via-white to-indigo-50">
       <div className="bg-white rounded-2xl p-6 shadow-lg max-w-3xl w-full">
         <h2 className="text-xl font-semibold">Booking Checkout</h2>
-        <p className="text-sm text-gray-600">Review your trip details before confirming.</p>
+        <p className="text-sm text-gray-600">
+          Review your trip details before confirming.
+        </p>
 
         {/* Destinations */}
         <div className="mt-6 space-y-3">
           {selectedDestinations.map((d) => (
-            <div key={d.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3">
+            <div
+              key={d.id}
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3"
+            >
               <div>
                 <div className="font-medium">{d.title}</div>
                 <div className="text-xs text-gray-500">{d.tag}</div>
