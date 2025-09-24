@@ -2,13 +2,11 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
-
-// ✅ Firebase
 import { db, auth } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Checkout() {
-  const { selectedDestinations, mood, budget } = useContext(AppContext);
+  const { selectedDestinations, mood, budget, pendingItinerary } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -32,11 +30,12 @@ export default function Checkout() {
         budget: budget || null,
         destinations: selectedDestinations,
         total,
+        travelDate: pendingItinerary?.travelDate || null, // 👈 Save date
         createdAt: serverTimestamp(),
       });
 
       alert("✅ Booking confirmed! 🚀");
-      navigate("/profile"); // 👈 after confirm, go to profile or history page
+      navigate("/profile");
     } catch (err) {
       console.error("Error saving booking:", err);
       alert("❌ Could not save booking. Try again.");
@@ -49,17 +48,12 @@ export default function Checkout() {
     <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-orange-50 via-white to-indigo-50">
       <div className="bg-white rounded-2xl p-6 shadow-lg max-w-3xl w-full">
         <h2 className="text-xl font-semibold">Booking Checkout</h2>
-        <p className="text-sm text-gray-600">
-          Review your trip details before confirming.
-        </p>
+        <p className="text-sm text-gray-600">Review your trip details before confirming.</p>
 
         {/* Destinations */}
         <div className="mt-6 space-y-3">
           {selectedDestinations.map((d) => (
-            <div
-              key={d.id}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3"
-            >
+            <div key={d.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3">
               <div>
                 <div className="font-medium">{d.title}</div>
                 <div className="text-xs text-gray-500">{d.tag}</div>
@@ -68,6 +62,14 @@ export default function Checkout() {
             </div>
           ))}
         </div>
+
+        {/* Show Travel Date */}
+        {pendingItinerary?.travelDate && (
+          <div className="mt-4 text-sm text-gray-600">
+            <span className="font-semibold">Travel Date: </span>
+            {pendingItinerary.travelDate}
+          </div>
+        )}
 
         {/* Total */}
         <div className="mt-4 flex justify-between border-t pt-4">

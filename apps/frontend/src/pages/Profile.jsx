@@ -11,7 +11,7 @@ import {
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { signOut, updateProfile } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Pencil, LogOut } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 export default function Profile() {
   const [trips, setTrips] = useState([]);
@@ -98,11 +98,6 @@ export default function Profile() {
     }
   }
 
-  // ✅ Fallback initial
-  const initial = user?.displayName
-    ? user.displayName.charAt(0).toUpperCase()
-    : "T";
-
   return (
     <section className="mt-8 bg-white rounded-2xl p-6 shadow-lg">
       {/* Header */}
@@ -110,9 +105,8 @@ export default function Profile() {
         <h2 className="text-xl font-semibold">My Profile</h2>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 text-white text-sm font-medium shadow hover:opacity-90 transition"
+          className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-orange-400 text-white text-sm font-medium hover:from-red-600 hover:to-orange-500 transition"
         >
-          <LogOut size={16} />
           Log Out
         </button>
       </div>
@@ -124,14 +118,14 @@ export default function Profile() {
             <img
               src={photoURL}
               alt="User avatar"
-              className="w-20 h-20 rounded-full object-cover border shadow"
+              className="w-20 h-20 rounded-full object-cover border-2 border-indigo-200"
             />
           ) : (
-            <div className="w-20 h-20 rounded-full bg-indigo-500 text-white flex items-center justify-center text-2xl font-bold shadow">
-              {initial}
+            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-indigo-500 text-white text-2xl font-bold">
+              {user?.displayName?.[0] || "T"}
             </div>
           )}
-          <label className="absolute bottom-0 right-0 bg-indigo-600 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-indigo-700 shadow">
+          <label className="absolute bottom-0 right-0 bg-indigo-500 text-white text-xs px-2 py-1 rounded cursor-pointer hover:bg-indigo-600">
             {uploading ? "..." : "Edit"}
             <input
               type="file"
@@ -141,7 +135,6 @@ export default function Profile() {
             />
           </label>
         </div>
-
         <div>
           {/* Editable Name */}
           {editingName ? (
@@ -154,13 +147,13 @@ export default function Profile() {
               />
               <button
                 onClick={handleUpdateName}
-                className="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs rounded shadow hover:opacity-90"
+                className="px-3 py-1 rounded bg-gradient-to-r from-green-500 to-emerald-400 text-white text-xs hover:from-green-600 hover:to-emerald-500"
               >
                 Save
               </button>
               <button
                 onClick={() => setEditingName(false)}
-                className="px-3 py-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs rounded shadow hover:opacity-90"
+                className="px-3 py-1 rounded bg-gradient-to-r from-gray-400 to-gray-500 text-white text-xs hover:from-gray-500 hover:to-gray-600"
               >
                 Cancel
               </button>
@@ -170,12 +163,11 @@ export default function Profile() {
               <div className="font-semibold text-lg">
                 {user?.displayName || "Traveler"}
               </div>
-              <button
+              <Pencil
+                size={16}
                 onClick={() => setEditingName(true)}
-                className="text-indigo-600 hover:text-indigo-800 bg-transparent border-none p-0 m-0"
-              >
-                <Pencil size={16} />
-              </button>
+                className="text-indigo-600 cursor-pointer hover:text-indigo-800"
+              />
             </div>
           )}
 
@@ -188,26 +180,26 @@ export default function Profile() {
 
       {/* Trips Section */}
       <div className="mt-8">
-        <h3 className="font-semibold text-lg">My Trips</h3>
+        <h3 className="font-semibold text-lg mb-3">My Trips</h3>
 
         {trips.length === 0 ? (
-          <p className="text-gray-500 text-sm mt-2">No trips booked yet.</p>
+          <p className="text-gray-500 text-sm">No trips booked yet.</p>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             {trips.map((t) => (
               <div
                 key={t.id}
-                className="flex items-center justify-between border rounded-lg p-4 hover:shadow-md transition"
+                className="flex flex-col justify-between border rounded-xl p-4 shadow-sm hover:shadow-md transition bg-gray-50"
               >
                 <div>
-                  <div className="font-medium">
+                  <div className="font-medium text-indigo-700">
                     {t.destinations.map((d) => d.title).join(", ")}
                   </div>
-                  <div className="text-xs text-gray-500">
-                    {t.travelDate || "No date set"}
+                  <div className="text-xs text-gray-500 mt-1">
+                    {t.travelDate ? `Travel Date: ${t.travelDate}` : "No date set"}
                   </div>
                 </div>
-                <div className="font-semibold text-indigo-600">
+                <div className="font-semibold text-indigo-600 mt-2">
                   Ksh{t.total}
                 </div>
               </div>

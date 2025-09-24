@@ -2,9 +2,11 @@
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
-
-// ✅ Firebase Auth
 import { auth } from "../firebase";
+
+// 📅 Date Picker
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Itinerary() {
   const { 
@@ -13,16 +15,15 @@ export default function Itinerary() {
     removeDestination, 
     mood, 
     budget,
-    setPendingItinerary   // 👈 make sure this is in AppContext
+    setPendingItinerary
   } = useContext(AppContext);
 
   const [rule, setRule] = useState(null);
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [travelDate, setTravelDate] = useState(null); // optional if you want to add date
+  const [travelDate, setTravelDate] = useState(null); 
   const navigate = useNavigate();
 
-  // ✅ Fetch mood rule (can be removed if backend isn’t ready)
+  // ✅ Fetch mood rule (optional)
   useEffect(() => {
     async function fetchRule() {
       if (!mood) return;
@@ -57,24 +58,26 @@ export default function Itinerary() {
       alert("⚠️ Please select at least one destination!");
       return;
     }
-
-    if (!auth.currentUser) {
-      // Save itinerary temporarily so it’s available after login
-      setPendingItinerary({
-        mood,
-        budget,
-        destinations: selectedDestinations,
-        total,
-        travelDate: travelDate ? travelDate.toISOString().split("T")[0] : null,
-      });
-
-      alert("⚠️ Please sign up or log in first to continue.");
-      navigate("/auth");
+    if (!travelDate) {
+      alert("⚠️ Please select a travel date!");
       return;
     }
 
-    // If already logged in → go to checkout
-    navigate("/checkout");
+    // Always save itinerary (even if logged in)
+    setPendingItinerary({
+      mood,
+      budget,
+      destinations: selectedDestinations,
+      total,
+      travelDate: travelDate.toISOString().split("T")[0], // formatted
+    });
+
+    if (!auth.currentUser) {
+      alert("⚠️ Please sign up or log in first to continue.");
+      navigate("/auth");
+    } else {
+      navigate("/checkout");
+    }
   }
 
   return (
@@ -126,6 +129,21 @@ export default function Itinerary() {
               >
                 Ksh{total}
               </div>
+            </div>
+
+            {/* 📅 Travel Date */}
+            <div className="mt-6">
+              <label className="block font-medium mb-2">
+                Select Travel Date:
+              </label>
+              <DatePicker
+                selected={travelDate}
+                onChange={(date) => setTravelDate(date)}
+                dateFormat="yyyy-MM-dd"
+                minDate={new Date()}
+                placeholderText="Click to choose a date"
+                className="border rounded-lg p-2 w-full"
+              />
             </div>
 
             {/* Actions */}
