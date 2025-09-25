@@ -27,7 +27,7 @@ export default function Rewards() {
   // Default badges list (with locked/earned state)
   const allBadges = [
     { id: 1, label: "Explorer", desc: "Visited 3+ destinations" },
-    { id: 2, label: "Budget Master", desc: "Planned under $500" },
+    { id: 2, label: "Budget Master", desc: "Planned under ksh5000" },
     { id: 3, label: "Cultural Seeker", desc: "Took 2+ cultural trips" },
     { id: 4, label: "Globetrotter", desc: "Completed 5+ trips" },
   ];

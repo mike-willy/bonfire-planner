@@ -14,6 +14,7 @@ import Rewards from "./pages/Rewards";
 import Profile from "./pages/Profile";
 import Checkout from "./pages/Checkout";
 import Auth from "./pages/Auth";
+import Leaderboard from "./pages/Leaderboard";
 
 
 export default function App() {
@@ -24,7 +25,7 @@ export default function App() {
       <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50 via-white to-orange-50 text-gray-800">
         <Header />
 
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full pt-20">
           {/* ✅ AnimatePresence allows exit animations */}
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
@@ -36,6 +37,7 @@ export default function App() {
               <Route path="/rewards" element={<PageTransition><Rewards /></PageTransition>} />
               <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
               <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+              <Route path="/leaderboard" element={<PageTransition><Leaderboard /></PageTransition>} />
               <Route path="/checkout" element={<Checkout />} />
             </Routes>
           </AnimatePresence>
