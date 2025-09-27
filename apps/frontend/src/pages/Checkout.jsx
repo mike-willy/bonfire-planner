@@ -106,24 +106,10 @@ export default function Checkout() {
             userName: auth.currentUser.displayName || "Traveler",
             title: `${badge} Badge Earned 🏅`,
             postType: "badge",
-            image: null, // optional: add a badge icon later
             likes: 0,
             createdAt: serverTimestamp(),
           });
         }
-      }
-
-      // --- ✅ Share each destination to community ---
-      for (let dest of selectedDestinations) {
-        await addDoc(collection(db, "community_posts"), {
-          authorId: auth.currentUser.uid,
-          userName: auth.currentUser.displayName || "Traveler",
-          title: `Exploring ${dest.title} 🌍`,
-          postType: "destination",
-          image: dest.image || null,
-          likes: 0,
-          createdAt: serverTimestamp(),
-        });
       }
 
       alert("✅ Booking confirmed! 🚀 Points, rewards, and community posts updated.");
