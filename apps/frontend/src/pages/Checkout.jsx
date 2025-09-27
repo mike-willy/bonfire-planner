@@ -81,13 +81,52 @@ export default function Checkout() {
         badges.add("Cultural Seeker");
       }
 
-      // Update Firestore
+      // Update Firestore user doc
       await updateDoc(userRef, {
         points: newPoints,
         badges: Array.from(badges),
       });
 
-      alert("✅ Booking confirmed! 🚀 Points & rewards updated.");
+      // --- ✅ Share itinerary to community feed ---
+      await addDoc(collection(db, "community_posts"), {
+        authorId: auth.currentUser.uid,
+        userName: auth.currentUser.displayName || "Traveler",
+        title: selectedDestinations.map((d) => d.title).join(", "),
+        postType: "itinerary",
+        image: selectedDestinations[0]?.image || null,
+        likes: 0,
+        createdAt: serverTimestamp(),
+      });
+
+      // --- ✅ Share new badges to community ---
+      for (let badge of badges) {
+        if (!userData.badges?.includes(badge)) {
+          await addDoc(collection(db, "community_posts"), {
+            authorId: auth.currentUser.uid,
+            userName: auth.currentUser.displayName || "Traveler",
+            title: `${badge} Badge Earned 🏅`,
+            postType: "badge",
+            image: null, // optional: add a badge icon later
+            likes: 0,
+            createdAt: serverTimestamp(),
+          });
+        }
+      }
+
+      // --- ✅ Share each destination to community ---
+      for (let dest of selectedDestinations) {
+        await addDoc(collection(db, "community_posts"), {
+          authorId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName || "Traveler",
+          title: `Exploring ${dest.title} 🌍`,
+          postType: "destination",
+          image: dest.image || null,
+          likes: 0,
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      alert("✅ Booking confirmed! 🚀 Points, rewards, and community posts updated.");
       navigate("/profile");
     } catch (err) {
       console.error("Error saving booking:", err);

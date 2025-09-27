@@ -60,8 +60,8 @@ export default function Auth() {
   }
 
   return (
-    <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-orange-50 via-white to-indigo-50">
-      <div className="bg-white rounded-2xl p-6 shadow-lg max-w-md w-full">
+    <section className="flex-1 flex items-center justify-center w-full bg-gradient-to-b from-orange-50 via-white to-indigo-50 p-6">
+      <div className="bg-white rounded-2xl p-6 shadow-lg max-w-md w-full ">
         <h2 className="text-xl font-semibold text-center">
           {isSignUp ? "Create an Account" : "Sign In"}
         </h2>
