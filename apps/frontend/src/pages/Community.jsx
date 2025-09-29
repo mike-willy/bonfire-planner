@@ -15,14 +15,11 @@ import { Heart, Share2 } from "lucide-react";
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
-  const [expanded, setExpanded] = useState({}); // track which posts are expanded
+  const [expanded, setExpanded] = useState({}); // track expanded posts
 
   // ✅ Fetch posts in real-time
   useEffect(() => {
-    const q = query(
-      collection(db, "community_posts"),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "community_posts"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
@@ -33,7 +30,7 @@ export default function Community() {
     return () => unsubscribe();
   }, []);
 
-  // ✅ Toggle Like (like/unlike)
+  // ✅ Toggle Like
   async function handleLike(post) {
     if (!auth.currentUser) {
       alert("⚠️ Please log in to like posts.");
@@ -44,70 +41,65 @@ export default function Community() {
       const userId = auth.currentUser.uid;
 
       if (post.likedBy?.includes(userId)) {
-        // Unlike
-        await updateDoc(postRef, {
-          likedBy: arrayRemove(userId),
-        });
+        await updateDoc(postRef, { likedBy: arrayRemove(userId) }); // Unlike
       } else {
-        // Like
-        await updateDoc(postRef, {
-          likedBy: arrayUnion(userId),
-        });
+        await updateDoc(postRef, { likedBy: arrayUnion(userId) }); // Like
       }
     } catch (err) {
       console.error("Error toggling like:", err);
     }
   }
 
-  // ✅ Helper to toggle "See more"
+  // ✅ Expand/collapse long text
   function toggleExpand(postId) {
-    setExpanded((prev) => ({
-      ...prev,
-      [postId]: !prev[postId],
-    }));
+    setExpanded((prev) => ({ ...prev, [postId]: !prev[postId] }));
   }
 
-  // ✅ Render UI differently per post type
+  // ✅ Post Renderer
   function renderPostContent(p) {
     const isExpanded = expanded[p.id];
-    const maxLength = 80; // characters before showing "See more"
+    const maxLength = 90;
     const needsTruncate = p.title && p.title.length > maxLength;
 
     const displayText =
-      needsTruncate && !isExpanded
-        ? p.title.slice(0, maxLength) + "..."
-        : p.title;
+      needsTruncate && !isExpanded ? p.title.slice(0, maxLength) + "..." : p.title;
 
     switch (p.postType) {
       case "itinerary":
         return (
-          <>
+          <div>
             {p.image && (
-              <img
-                src={p.image}
-                alt={p.title}
-                className="rounded-lg h-56 w-full object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={p.image}
+                  alt={p.title}
+                  className="rounded-xl h-48 w-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-3 rounded-b-xl">
+                  <h3 className="text-white font-semibold text-lg">
+                    ✈️ {displayText || "Itinerary"}
+                  </h3>
+                </div>
+              </div>
             )}
-            <h3 className="mt-3 font-semibold text-indigo-700 text-lg">
-              ✈️ {displayText || "Untitled Itinerary"}
-            </h3>
             {needsTruncate && (
               <button
                 onClick={() => toggleExpand(p.id)}
-                className="text-xs text-indigo-500 hover:underline"
+                className="text-xs text-indigo-500 hover:underline mt-2"
               >
                 {isExpanded ? "See less" : "See more"}
               </button>
             )}
-            <p className="text-sm text-gray-500">by {p.userName}</p>
-          </>
+            <p className="text-sm text-gray-500 mt-2">by {p.userName}</p>
+          </div>
         );
       case "badge":
         return (
-          <div className="flex flex-col items-center text-center py-8">
-            <div className="text-5xl">🏅</div>
-            <h3 className="mt-3 font-semibold text-emerald-600 text-lg">
+          <div className="flex flex-col items-center text-center py-6 bg-gradient-to-b from-emerald-50 to-white rounded-xl">
+            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 shadow-md">
+              <span className="text-4xl">🏅</span>
+            </div>
+            <h3 className="mt-3 font-semibold text-emerald-700 text-lg">
               {p.title || "New Badge"}
             </h3>
             <p className="text-sm text-gray-500">earned by {p.userName}</p>
@@ -115,12 +107,12 @@ export default function Community() {
         );
       case "destination":
         return (
-          <>
+          <div>
             {p.image && (
               <img
                 src={p.image}
                 alt={p.title}
-                className="rounded-lg h-56 w-full object-cover"
+                className="rounded-xl h-48 w-full object-cover"
               />
             )}
             <h3 className="mt-3 font-semibold text-orange-600 text-lg">
@@ -134,15 +126,13 @@ export default function Community() {
                 {isExpanded ? "See less" : "See more"}
               </button>
             )}
-            <p className="text-sm text-gray-500">shared by {p.userName}</p>
-          </>
+            <p className="text-sm text-gray-500 mt-1">shared by {p.userName}</p>
+          </div>
         );
       default:
         return (
-          <>
-            <h3 className="font-semibold text-lg">
-              {displayText || "Community Post"}
-            </h3>
+          <div>
+            <h3 className="font-semibold text-lg">{displayText || "Community Post"}</h3>
             {needsTruncate && (
               <button
                 onClick={() => toggleExpand(p.id)}
@@ -151,16 +141,16 @@ export default function Community() {
                 {isExpanded ? "See less" : "See more"}
               </button>
             )}
-            <p className="text-sm text-gray-500">by {p.userName}</p>
-          </>
+            <p className="text-sm text-gray-500 mt-1">by {p.userName}</p>
+          </div>
         );
     }
   }
 
   return (
-    <section className="mt-8 max-w-6xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section className="mt-10 max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {posts.length === 0 ? (
-        <p className="text-gray-500 text-sm">No community posts yet. 🚀</p>
+        <p className="text-gray-500 text-sm text-center">No community posts yet. 🚀</p>
       ) : (
         posts.map((p) => {
           const userId = auth.currentUser?.uid;
@@ -170,13 +160,13 @@ export default function Community() {
           return (
             <div
               key={p.id}
-              className="flex flex-col bg-white rounded-2xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 overflow-hidden"
+              className="flex flex-col bg-white rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 overflow-hidden"
             >
-              {/* Content fills space */}
-              <div className="flex-1 p-4">{renderPostContent(p)}</div>
+              {/* Post Content */}
+              <div className="flex-1 p-5">{renderPostContent(p)}</div>
 
-              {/* Actions always at bottom */}
-              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-700">
+              {/* Actions */}
+              <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 bg-gray-50">
                 {/* Like button */}
                 <button
                   onClick={() => handleLike(p)}
@@ -185,7 +175,7 @@ export default function Community() {
                       ? "text-pink-500 scale-110"
                       : "text-gray-600 hover:text-pink-500"
                   }`}
-                  style={{ background: "transparent", border: "none",outline: "none" }}
+                  style={{ background: "transparent", border: "none", outline: "none" }}
                 >
                   <Heart
                     className={`w-6 h-6 ${
@@ -213,7 +203,7 @@ export default function Community() {
                     }
                   }}
                   className="flex items-center gap-2 text-gray-600 hover:text-indigo-500 transition"
-                  style={{ background: "transparent", border: "none",outline: "none" }}
+                  style={{ background: "transparent", border: "none", outline: "none" }}
                 >
                   <Share2 className="w-5 h-5" />
                   <span className="text-sm font-medium">Share</span>

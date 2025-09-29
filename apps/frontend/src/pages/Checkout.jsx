@@ -87,6 +87,19 @@ export default function Checkout() {
         badges: Array.from(badges),
       });
 
+      // --- ✅ Update leaderboard (one doc per user) ---
+      const leaderboardRef = doc(db, "leaderboard", auth.currentUser.uid);
+      await setDoc(
+        leaderboardRef,
+        {
+          userId: auth.currentUser.uid,
+          displayName: auth.currentUser.displayName || "Traveler",
+          points: newPoints,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true } // merge ensures it updates instead of overwriting everything
+      );
+
       // --- ✅ Share itinerary to community feed ---
       await addDoc(collection(db, "community_posts"), {
         authorId: auth.currentUser.uid,
@@ -94,7 +107,6 @@ export default function Checkout() {
         title: selectedDestinations.map((d) => d.title).join(", "),
         postType: "itinerary",
         image: selectedDestinations[0]?.image || null,
-        likes: 0,
         createdAt: serverTimestamp(),
       });
 
@@ -106,13 +118,12 @@ export default function Checkout() {
             userName: auth.currentUser.displayName || "Traveler",
             title: `${badge} Badge Earned 🏅`,
             postType: "badge",
-            likes: 0,
             createdAt: serverTimestamp(),
           });
         }
       }
 
-      alert("✅ Booking confirmed! 🚀 Points, rewards, and community posts updated.");
+      alert("✅ Booking confirmed! 🚀 Points, leaderboard, and community updated.");
       navigate("/profile");
     } catch (err) {
       console.error("Error saving booking:", err);
