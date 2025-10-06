@@ -1,136 +1,153 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Sun,
-  MapPin,
+  Mountain,
   Heart,
-  Star,
+  Landmark,
   Users,
   Music,
   TreePine,
-  CheckCircle2,
 } from "lucide-react";
-import { AppContext } from "../context/AppContext";
-import { motion } from "framer-motion";
 
+// Motion button
 const MotionButton = motion.button;
 
-// Map mood IDs to icons + images
-const moodAssets = {
-  relaxed: { icon: <Sun size={22} />, image: "/Images/moods/Relaxed.jpg" },
-  adventurous: { icon: <MapPin size={22} />, image: "/Images/moods/Adventurous.jpg" },
-  romantic: { icon: <Heart size={22} />, image: "/Images/moods/Romantic.jpeg" },
-  cultural: { icon: <Star size={22} />, image: "/Images/moods/Cultural.jpeg" },
-  family: { icon: <Users size={22} />, image: "/Images/moods/Family.jpeg" },
-  party: { icon: <Music size={22} />, image: "/Images/moods/party.webp" },
-  nature: { icon: <TreePine size={22} />, image: "/Images/moods/Nature.jpg" },
+// Mood → Icons
+const moodIcons = {
+  relaxed: <Sun className="text-yellow-500" size={22} />,
+  adventurous: <Mountain className="text-red-500" size={22} />,
+  romantic: <Heart className="text-pink-500" size={22} />,
+  cultural: <Landmark className="text-purple-500" size={22} />,
+  family: <Users className="text-green-500" size={22} />,
+  party: <Music className="text-indigo-500" size={22} />,
+  nature: <TreePine className="text-emerald-600" size={22} />,
 };
 
 export default function Quiz() {
+  const [quiz, setQuiz] = useState([]);
+  const [answers, setAnswers] = useState([]);
+  const [currentQ, setCurrentQ] = useState(0);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { setMood, availableMoods = [], fetchMoods, loading, error } =
-    useContext(AppContext); // ✅ safe default
-  const [selectedMood, setSelectedMood] = useState(null);
 
-  // ✅ Fetch moods from backend on mount
   useEffect(() => {
-    fetchMoods();
-  }, [fetchMoods]);
+    async function fetchQuiz() {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/quiz");
+        const data = await res.json();
+        setQuiz(data.quiz);
+      } catch (err) {
+        console.error("Error loading quiz:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchQuiz();
+  }, []);
 
-  function pickMood(id) {
-    setSelectedMood(id);
-    setMood(id);
-    setTimeout(() => navigate("/recommendations"), 800); // delay for feedback
+  async function handleAnswer(mood) {
+    const updatedAnswers = [...answers, mood];
+    setAnswers(updatedAnswers);
+
+    if (currentQ < quiz.length - 1) {
+      setCurrentQ(currentQ + 1);
+    } else {
+      try {
+        console.log("👉 Payload being sent:", JSON.stringify({ answers: updatedAnswers }));
+
+        const res = await fetch("http://127.0.0.1:8000/quiz-result", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: updatedAnswers }),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error("❌ Server responded with error:", errorText);
+        }
+
+        const result = await res.json();
+        console.log("✅ Response from backend:", result);
+
+        // ✅ Save to localStorage
+        localStorage.setItem("mood", result.mood);
+        localStorage.setItem("recommendations", JSON.stringify(result.recommendations));
+        localStorage.setItem("lastAnswers", JSON.stringify(updatedAnswers)); // 🔑 save answers
+
+        navigate("/recommendations");
+      } catch (err) {
+        console.error("Error submitting quiz:", err);
+      }
+    }
   }
 
+  if (loading) {
+    return <p className="text-center mt-10 text-gray-500">Loading quiz...</p>;
+  }
+
+  if (!quiz.length) {
+    return <p className="text-center mt-10 text-red-500">No quiz available.</p>;
+  }
+
+  const q = quiz[currentQ];
+  const progress = ((currentQ + 1) / quiz.length) * 100;
+
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-indigo-50 via-white to-orange-50 overflow-hidden">
-      {/* 🎨 Background abstract shapes */}
-      <div className="absolute top-[-5rem] left-[-5rem] w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse"></div>
-      <div className="absolute bottom-[-6rem] right-[-6rem] w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-pulse"></div>
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-6xl px-6 py-12 flex flex-col items-center">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-800">
-            How are you feeling today?
-          </h2>
-          <p className="mt-3 text-gray-600 text-base sm:text-lg">
-            Pick a mood and we’ll suggest destinations tailored just for you ✨
-          </p>
-        </div>
-
-        {/* Mood Grid */}
-        {loading ? (
-          <p className="text-gray-500">Loading moods...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : availableMoods.length === 0 ? (
-          <p className="text-gray-500">No moods available. Try again later.</p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-            {availableMoods.map((m) => {
-              const assets = moodAssets[m] || {};
-              return (
-                <MotionButton
-                  key={m}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => pickMood(m)}
-                  className={`relative p-6 rounded-2xl shadow-md hover:shadow-2xl border flex flex-col items-center justify-center gap-4 transition-all h-40 text-white overflow-hidden group ${
-                    selectedMood === m
-                      ? "border-4 border-emerald-400 shadow-xl"
-                      : "border-gray-100"
-                  }`}
-                >
-                  {/* Background Image */}
-                  {assets.image && (
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                      style={{ backgroundImage: `url(${assets.image})` }}
-                    ></div>
-                  )}
-
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-black/40 rounded-2xl"></div>
-
-                  {/* Icon + Text */}
-                  <motion.div
-                    className="relative z-10 flex flex-col items-center gap-2"
-                    initial={{ y: 0, opacity: 1 }}
-                    whileHover={{ y: -6, opacity: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <div className="p-3 rounded-full bg-white/80 text-indigo-600 shadow-inner">
-                      {assets.icon}
-                    </div>
-                    <div className="text-lg font-semibold capitalize">{m}</div>
-                    <div className="text-xs capitalize">{m} vibes</div>
-                  </motion.div>
-
-                  {/* ✅ Checkmark when selected */}
-                  {selectedMood === m && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ duration: 0.4 }}
-                      className="absolute top-2 right-2 text-emerald-400 drop-shadow-lg"
-                    >
-                      <CheckCircle2 size={28} />
-                    </motion.div>
-                  )}
-                </MotionButton>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Footer Note */}
-        <div className="mt-12 text-center text-sm text-gray-500">
-          Don’t worry — you can always change your mood later!
-        </div>
+    <section className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-orange-50 px-6 py-12">
+      {/* Progress Bar */}
+      <div className="w-full max-w-3xl h-3 bg-gray-200 rounded-full overflow-hidden mb-10">
+        <motion.div
+          className="h-3 bg-gradient-to-r from-indigo-500 to-orange-400"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.5 }}
+        />
       </div>
+
+      {/* Question Card */}
+      <motion.div
+        key={currentQ}
+        className="bg-white shadow-xl rounded-2xl p-6 sm:p-10 max-w-2xl w-full text-center border border-indigo-100"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-indigo-700 mb-8">
+          {q.question}
+        </h2>
+
+        {/* Options */}
+        <div className="grid gap-5">
+          {q.options.map((opt, i) => (
+            <MotionButton
+              key={i}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleAnswer(opt.mood)}
+              className="w-full px-6 py-5 rounded-xl bg-gradient-to-r from-indigo-100 to-white shadow-md border-2 border-transparent hover:border-indigo-400 hover:shadow-lg transition flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <span className="p-2 bg-white rounded-full shadow-inner">
+                  {moodIcons[opt.mood]}
+                </span>
+                <span className="text-lg text-gray-800 font-semibold">
+                  {opt.answer}
+                </span>
+              </div>
+              <span className="text-sm text-indigo-600 font-medium capitalize">
+                {opt.mood} vibe
+              </span>
+            </MotionButton>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Footer */}
+      <p className="mt-8 text-sm text-gray-600">
+        Question {currentQ + 1} of {quiz.length}
+      </p>
     </section>
   );
 }

@@ -1,8 +1,14 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from collections import Counter   # ✅ FIX: import Counter
+from typing import List   # ✅ Import List
+
+
 
 app = FastAPI()
+
+origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -93,19 +99,78 @@ recommendations = [
    
 ]
 
+quiz = [
+    {
+        "id": 1,
+        "question": "What kind of weekend sounds best to you?",
+        "options": [
+            {"answer": "Relaxing on the beach with a book", "mood": "relaxed"},
+            {"answer": "Climbing a mountain or safari adventure", "mood": "adventurous"},
+            {"answer": "A romantic candlelit dinner", "mood": "romantic"},
+            {"answer": "Exploring a historic site or museum", "mood": "cultural"},
+        ],
+    },
+    {
+        "id": 2,
+        "question": "Who are you most likely to travel with?",
+        "options": [
+            {"answer": "My partner for a romantic escape", "mood": "romantic"},
+            {"answer": "My whole family — kids included!", "mood": "family"},
+            {"answer": "A group of friends for fun nights", "mood": "party"},
+            {"answer": "Solo trip for personal relaxation", "mood": "relaxed"},
+        ],
+    },
+    {
+        "id": 3,
+        "question": "Pick your ideal vibe:",
+        "options": [
+            {"answer": "Peaceful walks in forests or parks", "mood": "nature"},
+            {"answer": "High-energy nightlife & dancing", "mood": "party"},
+            {"answer": "Thrill and adrenaline activities", "mood": "adventurous"},
+            {"answer": "Cultural shows or traditional experiences", "mood": "cultural"},
+        ],
+    },
+    {
+        "id": 4,
+        "question": "What excites you most about traveling?",
+        "options": [
+            {"answer": "Relaxation and stress relief", "mood": "relaxed"},
+            {"answer": "Trying adventurous experiences", "mood": "adventurous"},
+            {"answer": "Bonding with loved ones", "mood": "family"},
+            {"answer": "Romantic memories with a partner", "mood": "romantic"},
+        ],
+    },
+    {
+        "id": 5,
+        "question": "Which scenery attracts you most?",
+        "options": [
+            {"answer": "Beautiful beaches and ocean views", "mood": "relaxed"},
+            {"answer": "Mountains, safaris, or desert landscapes", "mood": "adventurous"},
+            {"answer": "Lush green forests and waterfalls", "mood": "nature"},
+            {"answer": "Ancient ruins or cultural landmarks", "mood": "cultural"},
+        ],
+    },
+]
+
+
 # === MODELS ===
-class MoodRequest(BaseModel):
-    mood: str
+class QuizAnswers(BaseModel):
+    answers: List[str]
 
 # === ENDPOINTS ===
-@app.get("/moods")
-def get_available_moods():
-    moods = sorted(set(item["mood"] for item in recommendations))
-    return {"moods": moods}
+@app.get("/quiz")
+def get_quiz():
+    return {"quiz": quiz}
 
-@app.post("/recommendations")
-def get_recommendations(data: MoodRequest):
-    mood = data.mood.lower()
-    recs = [item for item in recommendations if item["mood"].lower() == mood]
-    return {"recommendations": recs}
+@app.post("/quiz-result")
+def get_quiz_result(data: QuizAnswers):
+    # Count moods from answers
+    mood_votes = Counter(data.answers)
+    top_mood = mood_votes.most_common(1)[0][0] if mood_votes else "relaxed"
 
+    # Get recommendations based on dominant mood
+    recs = [item for item in recommendations if item["mood"].lower() == top_mood.lower()]
+    return {
+        "mood": top_mood,
+        "recommendations": recs
+    }

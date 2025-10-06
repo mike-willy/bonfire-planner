@@ -10,17 +10,33 @@ export const AppContext = createContext();
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [trips, setTrips] = useState(() => {
-    // ✅ Load from cache on startup
     const cached = localStorage.getItem("userTrips");
     return cached ? JSON.parse(cached) : [];
   });
-  const [mood, setMood] = useState(null);
+
+  // ✅ Load from localStorage
+  const [mood, setMood] = useState(() => localStorage.getItem("mood") || null);
+  const [recommendations, setRecommendations] = useState(() => {
+    const cached = localStorage.getItem("recommendations");
+    return cached ? JSON.parse(cached) : [];
+  });
+
   const [availableMoods, setAvailableMoods] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
   const [selectedDestinations, setSelectedDestinations] = useState([]);
   const [pendingItinerary, setPendingItinerary] = useState(null);
+
+  // ✅ Persist mood/recommendations
+  useEffect(() => {
+    if (mood) localStorage.setItem("mood", mood);
+  }, [mood]);
+
+  useEffect(() => {
+    if (recommendations.length > 0) {
+      localStorage.setItem("recommendations", JSON.stringify(recommendations));
+    }
+  }, [recommendations]);
 
   // ✅ Track Firebase Auth state + trips
   useEffect(() => {
@@ -40,8 +56,6 @@ export function AppProvider({ children }) {
             ...doc.data(),
           }));
           setTrips(tripsData);
-
-          // ✅ Save to cache
           localStorage.setItem("userTrips", JSON.stringify(tripsData));
         });
 
@@ -55,7 +69,7 @@ export function AppProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
-  // ✅ Fetch moods
+  // ✅ Fetch moods (optional)
   const fetchMoods = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -74,20 +88,27 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // ✅ Fetch recommendations
-  const fetchRecommendations = useCallback(async (selectedMood) => {
-    if (!selectedMood) return;
+  // ✅ Fetch recommendations based on answers
+  const fetchRecommendations = useCallback(async (answers) => {
+    if (!answers || !answers.length) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://127.0.0.1:8000/recommendations", {
+      const response = await fetch("http://127.0.0.1:8000/quiz-result", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mood: selectedMood }),
+        body: JSON.stringify({ answers }),
       });
       if (!response.ok) throw new Error("Failed to fetch recommendations");
       const data = await response.json();
+
+      setMood(data.mood);
       setRecommendations(data.recommendations || []);
+
+      // ✅ Save to cache
+      localStorage.setItem("mood", data.mood);
+      localStorage.setItem("recommendations", JSON.stringify(data.recommendations || []));
+      localStorage.setItem("lastAnswers", JSON.stringify(answers)); // 👈 store latest answers
     } catch (err) {
       console.error("Error fetching recommendations:", err);
       setError("Could not load recommendations. Please try again.");
@@ -97,7 +118,16 @@ export function AppProvider({ children }) {
     }
   }, []);
 
-  // ✅ Select / deselect
+  // ✅ Clear mood & recs when starting a new quiz
+  const resetQuiz = () => {
+    setMood(null);
+    setRecommendations([]);
+    localStorage.removeItem("mood");
+    localStorage.removeItem("recommendations");
+    localStorage.removeItem("lastAnswers");
+  };
+
+  // ✅ Select / deselect destinations
   const toggleSelect = (destination) => {
     setSelectedDestinations((prev) =>
       prev.find((d) => d.id === destination.id)
@@ -114,7 +144,7 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         user,
-        trips,                // ✅ trips always available
+        trips,
         mood,
         setMood,
         availableMoods,
@@ -129,6 +159,7 @@ export function AppProvider({ children }) {
         removeDestination,
         pendingItinerary,
         setPendingItinerary,
+        resetQuiz, // 👈 expose reset
       }}
     >
       {children}
