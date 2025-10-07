@@ -117,7 +117,7 @@ quiz = [
             {"answer": "My partner for a romantic escape", "mood": "romantic"},
             {"answer": "My whole family — kids included!", "mood": "family"},
             {"answer": "A group of friends for fun nights", "mood": "party"},
-            {"answer": "Solo trip for personal relaxation", "mood": "relaxed"},
+            {"answer": "Nature lovers", "mood": "nature"},
         ],
     },
     {
@@ -145,9 +145,10 @@ quiz = [
         "question": "Which scenery attracts you most?",
         "options": [
             {"answer": "Beautiful beaches and ocean views", "mood": "relaxed"},
-            {"answer": "Mountains, safaris, or desert landscapes", "mood": "adventurous"},
+            {"answer": "Theme parks & kid-friendly places", "mood": "family"},
             {"answer": "Lush green forests and waterfalls", "mood": "nature"},
             {"answer": "Ancient ruins or cultural landmarks", "mood": "cultural"},
+            {"answer": "City lights & nightlife scenes", "mood": "party"},
         ],
     },
 ]
