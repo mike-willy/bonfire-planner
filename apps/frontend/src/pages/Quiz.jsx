@@ -57,7 +57,7 @@ export default function Quiz() {
     const finalAnswers = Object.values(answers);
 
     try {
-      console.log("👉 Payload being sent:", JSON.stringify({ answers: finalAnswers }));
+      console.log(" Payload being sent:", JSON.stringify({ answers: finalAnswers }));
 
       const res = await fetch("http://127.0.0.1:8000/quiz-result", {
         method: "POST",
@@ -100,7 +100,7 @@ export default function Quiz() {
     <section className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-orange-50 px-6 py-12">
       {/* Notice */}
       <div className="mb-6 max-w-2xl text-center bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg shadow">
-        ⚡ Please answer <span className="font-bold">at least 3 questions</span> 
+        ⚡ Please answer <span className="font-bold">at least 3 questions of same vibe </span> 
         so we can generate the best recommendations for your vibe.
       </div>
 

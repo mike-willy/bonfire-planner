@@ -115,7 +115,7 @@ quiz = [
         "question": "Who are you most likely to travel with?",
         "options": [
             {"answer": "My partner for a romantic escape", "mood": "romantic"},
-            {"answer": "My whole family — kids included!", "mood": "family"},
+            {"answer": "My whole family — kids included", "mood": "family"},
             {"answer": "A group of friends for fun nights", "mood": "party"},
             {"answer": "Nature lovers", "mood": "nature"},
         ],
