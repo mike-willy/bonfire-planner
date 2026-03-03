@@ -74,7 +74,8 @@ export function AppProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8000/moods");
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/moods`);
       if (!response.ok) throw new Error("Failed to fetch moods");
       const data = await response.json();
       const moods = data.moods || [];
@@ -94,7 +95,8 @@ export function AppProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://127.0.0.1:8000/quiz-result", {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/quiz-result`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers }),

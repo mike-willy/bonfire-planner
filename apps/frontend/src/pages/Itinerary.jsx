@@ -9,18 +9,18 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function Itinerary() {
-  const { 
-    selectedDestinations, 
-    clearAllDestinations, 
-    removeDestination, 
-    mood, 
+  const {
+    selectedDestinations,
+    clearAllDestinations,
+    removeDestination,
+    mood,
     budget,
     setPendingItinerary
   } = useContext(AppContext);
 
   const [rule, setRule] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [travelDate, setTravelDate] = useState(null); 
+  const [travelDate, setTravelDate] = useState(null);
   const navigate = useNavigate();
 
   // ✅ Fetch mood rule (optional)
@@ -29,7 +29,8 @@ export default function Itinerary() {
       if (!mood) return;
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/rules/${mood}`);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const res = await fetch(`${apiUrl}/rules/${mood}`);
         if (!res.ok) throw new Error("Failed to fetch rule");
         const data = await res.json();
         setRule(data);
@@ -119,13 +120,12 @@ export default function Itinerary() {
             <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t pt-4 gap-2">
               <div className="font-semibold">Total</div>
               <div
-                className={`px-3 py-1 rounded text-sm font-bold ${
-                  status === "within"
+                className={`px-3 py-1 rounded text-sm font-bold ${status === "within"
                     ? "bg-green-100 text-green-700"
                     : status === "above"
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-red-100 text-red-700"
-                }`}
+                      ? "bg-amber-100 text-amber-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
               >
                 Ksh{total}
               </div>
