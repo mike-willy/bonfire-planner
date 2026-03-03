@@ -1,6 +1,6 @@
 // src/pages/Auth.jsx
 import { useState, useContext } from "react";
-import { auth } from "../firebase";
+import { auth } from "../fireConfig";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

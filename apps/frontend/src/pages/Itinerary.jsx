@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth } from "../fireConfig";
 
 // 📅 Date Picker
 import DatePicker from "react-datepicker";

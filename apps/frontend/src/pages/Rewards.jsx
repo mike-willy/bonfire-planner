@@ -1,6 +1,6 @@
 // src/pages/Rewards.jsx
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
+import { auth, db } from "../fireConfig";
 import { doc, onSnapshot } from "firebase/firestore";
 
 export default function Rewards() {
