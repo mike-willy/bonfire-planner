@@ -9,7 +9,6 @@ export default function Header() {
 
   const location = useLocation();
 
-  // ✅ Function to check if link is active
   const isActive = (path) => location.pathname === path;
 
   const baseLink = "transition-colors duration-200 hover:text-indigo-500";
