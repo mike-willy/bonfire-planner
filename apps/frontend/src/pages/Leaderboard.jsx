@@ -1,6 +1,6 @@
 // src/pages/Leaderboard.jsx
 import { useEffect, useState } from "react";
-import { db } from "../fireConfig";
+import { db } from "../fireConfig.jsx";
 import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 
 export default function Leaderboard() {

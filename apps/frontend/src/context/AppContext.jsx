@@ -1,6 +1,6 @@
 // src/context/AppContext.jsx
 import { createContext, useState, useCallback, useEffect } from "react";
-import { auth, db } from "../fireConfig";
+import { auth, db } from "../fireConfig.jsx";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
 

@@ -1,6 +1,6 @@
 // src/pages/Community.jsx
 import { useEffect, useState } from "react";
-import { db, auth } from "../fireConfig";
+import { db, auth } from "../fireConfig.jsx";
 import {
   collection,
   query,

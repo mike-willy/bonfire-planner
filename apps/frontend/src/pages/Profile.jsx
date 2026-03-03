@@ -1,6 +1,6 @@
 // src/pages/Profile.jsx
 import { useState, useEffect } from "react";
-import { auth, storage, db } from "../fireConfig";
+import { auth, storage, db } from "../fireConfig.jsx";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { signOut, updateProfile } from "firebase/auth";
 import {
