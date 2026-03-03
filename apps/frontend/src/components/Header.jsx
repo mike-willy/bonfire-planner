@@ -44,10 +44,10 @@ export default function Header() {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold">
-            BA
+            TS
           </div>
           <div>
-            <div className="font-semibold">Bonfire Adventures</div>
+            <div className="font-semibold">The Travel Spark</div>
             <div className="text-xs text-gray-500">
               Mood-based travel planner
             </div>
