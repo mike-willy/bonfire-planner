@@ -110,6 +110,15 @@ export default function Header() {
         >
           <nav className="flex flex-col gap-3">
             <Link
+              to="/auth"
+              className={`${baseLink} ${
+                isActive("/auth") ? activeLink : ""
+              }`}
+              onClick={() => setIsOpen(false)}
+            >
+              Sign Up
+            </Link>
+            <Link
               to="/community"
               className={`${baseLink} ${
                 isActive("/community") ? activeLink : ""
